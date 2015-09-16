@@ -26,3 +26,14 @@ www-test/
 
 #old GWT (1.5) created this dir
 .gwt-tmp/
+
+#maven
+target
+
+#stupid mac stuff
+.DS_Store
+
+#eclipse stuff
+.classpath
+.project
+.settings/
