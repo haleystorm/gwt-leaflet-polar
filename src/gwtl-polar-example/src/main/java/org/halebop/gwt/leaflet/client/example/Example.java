@@ -14,15 +14,16 @@
  *******************************************************************************/
 package org.halebop.gwt.leaflet.client.example;
 
+import java.util.HashMap;
+import java.util.Map.Entry;
+
 import org.discotools.gwt.leaflet.client.Options;
 import org.discotools.gwt.leaflet.client.controls.ControlOptions;
 import org.discotools.gwt.leaflet.client.controls.Position;
 import org.discotools.gwt.leaflet.client.controls.layers.Layers;
-import org.discotools.gwt.leaflet.client.jsobject.JSObject;
-import org.discotools.gwt.leaflet.client.layers.ILayer;
+import org.discotools.gwt.leaflet.client.events.handler.EventHandler;
+import org.discotools.gwt.leaflet.client.events.handler.EventHandlerManager;
 import org.discotools.gwt.leaflet.client.layers.others.LayerGroup;
-import org.discotools.gwt.leaflet.client.layers.others.LayerGroup.LayerHandler;
-import org.discotools.gwt.leaflet.client.map.Map;
 import org.discotools.gwt.leaflet.client.marker.Marker;
 import org.discotools.gwt.leaflet.client.marker.MarkerOptions;
 import org.discotools.gwt.leaflet.client.types.LatLng;
@@ -36,8 +37,10 @@ import org.halebop.gwt.leaflet.client.polar.map.Layer3576;
 import org.halebop.gwt.leaflet.client.polar.map.PolarMap;
 import org.halebop.gwt.leaflet.client.polar.map.PolarMapOptions;
 import org.halebop.gwt.leaflet.client.polar.map.TileLayer;
+import org.discotools.gwt.leaflet.client.events.LayersControlEvent;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.shared.GWT;
 import com.google.gwt.user.client.ui.RootPanel;
 
 /**
@@ -46,71 +49,36 @@ import com.google.gwt.user.client.ui.RootPanel;
 public class Example implements
 		EntryPoint
 {
-
-	Map map;
-
-	public class MyLayerHandler implements
-			LayerHandler
-	{
-		public int countOfEditedLayers = 0;
-
-		@Override
-		public void handle(
-				ILayer layer ) {
-			countOfEditedLayers++;
-		}
+	public void onModuleLoad() {
+		loadMap(
+				"map-1",
+				"Arctic Connect: EPSG:3571");
+		loadMap(
+				"map-2",
+				"OSM: EPSG:3857");
 	}
 
-	public void onModuleLoad() {
-
-		// Fit MapWidget to device screen
-		RootPanel rootPanel = RootPanel.get();
-		rootPanel.setStyleName("gwt-Body");
-		MapWidget mapWidget = new MapWidget(
-				"map");
-		rootPanel.add(mapWidget);
-		mapWidget.setHeight("");
-		mapWidget.setStyleName("gwt-Map");
-
-		// Create Map instance
-		PolarMapOptions loptions = new PolarMapOptions();
-		TileLayer baseLayer = new Layer3573();
-		loptions.setBaseLayer(baseLayer);
-
-		map = new PolarMap(
-				"map",
-				loptions);
-		LatLng center = new LatLng(
-				baseLayer.getOptions().getProperty(
-						"center"));
-
-		double zoom = baseLayer.getOptions().getPropertyAsDouble(
-				"zoom");
-		map.setView(
-				center,
-				zoom,
-				true);
-
-		// Create layer switcher control
-		Options bases = new Options();
-		bases.setProperty(
+	public java.util.Map<String, TileLayer> createBases() {
+		java.util.Map<String, TileLayer> bases = new HashMap<String, TileLayer>();
+		bases.put(
 				"Arctic Connect: EPSG:3571",
 				new Layer3571());
-		bases.setProperty(
+		bases.put(
 				"Arctic Connect: EPSG:3572",
 				new Layer3572());
-		bases.setProperty(
+		bases.put(
 				"Arctic Connect: EPSG:3573",
 				new Layer3573());
-		bases.setProperty(
+		bases.put(
 				"Arctic Connect: EPSG:3574",
 				new Layer3574());
-		bases.setProperty(
+		bases.put(
 				"Arctic Connect: EPSG:3575",
 				new Layer3575());
-		bases.setProperty(
+		bases.put(
 				"Arctic Connect: EPSG:3576",
 				new Layer3576());
+
 		Options tileOptions = new Options();
 		tileOptions.setProperty(
 				"name",
@@ -135,18 +103,64 @@ public class Example implements
 		tileOptions.setProperty(
 				"attribution",
 				"&copy; <a href=\"http://osm.org/copyright\">OpenStreetMap</a> contributors");
-		bases.setProperty(
+
+		TileLayer osm = new TileLayer(
+				"http://{s}.tile.osm.org/{z}/{x}/{y}.png",
+				tileOptions);
+		bases.put(
 				"OSM: EPSG:3857",
-				new TileLayer(
-						"http://{s}.tile.osm.org/{z}/{x}/{y}.png",
-						tileOptions));
+				osm);
+
+		return bases;
+	}
+
+	public void loadMap(
+			final String mapId,
+			final String baseName ) {
+		// Create layer switcher control
+		java.util.Map<String, TileLayer> bases = createBases();
+
+		// Fit MapWidget to device screen
+		RootPanel rootPanel = RootPanel.get();
+		rootPanel.setStyleName("gwt-Body");
+		MapWidget mapWidget = new MapWidget(
+				mapId);
+		rootPanel.add(mapWidget);
+		mapWidget.setHeight("");
+		mapWidget.setStyleName("gwt-Map");
+
+		// Create Map instance
+		PolarMapOptions loptions = new PolarMapOptions();
+		loptions.setBaseLayer(bases.get(baseName));
+
+		PolarMap map = new PolarMap(
+				mapId,
+				loptions);
+		LatLng center = new LatLng(
+				bases.get(
+						baseName).getOptions().getProperty(
+						"center"));
+
+		double zoom = bases.get(
+				baseName).getOptions().getPropertyAsDouble(
+				"zoom");
+		map.setView(
+				center,
+				zoom,
+				true);
 
 		// Add layers control to map
 		Options overlays = new Options();
 		ControlOptions controlOptions = new ControlOptions();
 		controlOptions.setPosition(Position.TOP_RIGHT);
+		Options baseOptions = new Options();
+		for (Entry<String, TileLayer> entry : bases.entrySet()) {
+			baseOptions.setProperty(
+					entry.getKey(),
+					entry.getValue());
+		}
 		Layers control = new Layers(
-				bases,
+				baseOptions,
 				overlays,
 				controlOptions);
 		control.addTo(map);
@@ -182,5 +196,17 @@ public class Example implements
 		LayerGroup groupMarkers = new LayerGroup(
 				markers);
 		groupMarkers.addTo(map);
+
+		EventHandlerManager.addEventHandler(
+				map,
+				EventHandler.Events.baselayerchange,
+				new EventHandler<LayersControlEvent>() {
+
+					@Override
+					public void handle(
+							LayersControlEvent event ) {
+						GWT.log("Map[" + mapId + "] base layer changed: " + event.getName());
+					}
+				});
 	}
 }

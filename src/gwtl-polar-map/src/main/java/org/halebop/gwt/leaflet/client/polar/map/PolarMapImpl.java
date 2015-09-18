@@ -34,4 +34,8 @@ public class PolarMapImpl
 		// Finished
 		return map;
 	}-*/;
+
+	public static native JSObject loadTileProjection(JSObject self, JSObject tileLayer) /*-{
+		self.loadTileProjection(tileLayer);
+	}-*/;
 }

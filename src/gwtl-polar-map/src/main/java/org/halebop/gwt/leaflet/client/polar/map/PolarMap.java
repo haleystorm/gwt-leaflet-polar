@@ -21,4 +21,11 @@ public class PolarMap extends
 						options.getJSObject()));
 	}
 
+	public PolarMap loadTileProjection(
+			TileLayer tileLayer ) {
+		PolarMapImpl.loadTileProjection(
+				getJSObject(),
+				tileLayer.getJSObject());
+		return this;
+	}
 }

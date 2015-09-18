@@ -15,21 +15,27 @@ public class LAEATileLayerImpl {
 		var layer;
 		if(code == LAYER_3571) {
 			layer = $wnd.L.PolarMap.layer3571;
+			layer = $wnd.L.PolarMap.laeaTileLayer(layer._url, layer.options);
 		}
 		else if(code == LAYER_3572) {
 			layer = $wnd.L.PolarMap.layer3572;
+			layer = $wnd.L.PolarMap.laeaTileLayer(layer._url, layer.options);
 		}
 		else if(code == LAYER_3573) {
 			layer = $wnd.L.PolarMap.layer3573;
+			layer = $wnd.L.PolarMap.laeaTileLayer(layer._url, layer.options);
 		}
 		else if(code == LAYER_3574) {
 			layer = $wnd.L.PolarMap.layer3574;
+			layer = $wnd.L.PolarMap.laeaTileLayer(layer._url, layer.options);
 		}
 		else if(code == LAYER_3575) {
 			layer = $wnd.L.PolarMap.layer3575;
+			layer = $wnd.L.PolarMap.laeaTileLayer(layer._url, layer.options);
 		}
 		else if(code == LAYER_3576) {
 			layer = $wnd.L.PolarMap.layer3576;
+			layer = $wnd.L.PolarMap.laeaTileLayer(layer._url, layer.options);
 		}
 
 		return layer;
